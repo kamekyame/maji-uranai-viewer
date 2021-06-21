@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="jp">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>トップ</title>
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP" rel="stylesheet">
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/latest/normalize.css">
+    <link rel="stylesheet" href="common.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+
+  </head>
+
+  <body>
+    <header>
+      <p>まぁじ占いビューア</p>
+    </header>
+
+    <main>
+      <canvas id="zodiacSignsChart"></canvas>
+      <canvas id="colorsChart"></canvas>
+    </main>
+    <footer>
+      <p id="copyright">© 2021 kamekyame</p>
+    </footer>
+
+
+    <script type="module">
+      main();
+
+      async function main() {
+        colorsChart();
+
+        zodiacSignsChart();
+      }
+
+      async function colorsChart() {
+        const res = await fetch("https://kamekyame.mydns.jp/api/maji-uranai/colors.json");
+        const colorsJson = await res.json();
+
+        const colors = [
+          { data: "赤", color: "red" },
+          { data: "オレンジ", color: "orange" },
+          { data: "黄色", color: "yellow" },
+          { data: "緑", color: "green" },
+          { data: "青", color: "blue" },
+          { data: "紫", color: "purple" },
+          { data: "ピンク", color: "pink" },
+          { data: "茶", color: "brown" },
+          { data: "白", color: "white" },
+          { data: "灰", color: "gray" },
+          { data: "黒", color: "black" },
+        ];
+
+        const labels = colors.map(e => e.data);
+        //const backgroundColor = colors.map(e => e.color);
+        const data = colors.map(_ => 0);
+        const badData = colors.map(_ => 0);
+        colorsJson.forEach(json => {
+          const i = colors.findIndex(color => json.value === color.data);
+          data[i]++;
+          const j = colors.findIndex(color => json.badValue === color.data);
+          badData[j]++;
+        })
+
+        var ctx = document.getElementById("colorsChart");
+        var myChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels, datasets: [{
+              label: "ラッキーカラー",
+              backgroundColor: "red",
+              data
+            }, {
+              label: "アンラッキーカラー", backgroundColor: "blue", data: badData
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: 'ラッキーカラー・アンラッキーカラー'
+            }
+          }
+        });
+      }
+      async function zodiacSignsChart() {
+        const res = await fetch("https://kamekyame.mydns.jp/api/maji-uranai/zodiac-signs.json");
+        const zodiacSignsJson = await res.json();
+
+        const zodiacSigns = [
+          "おひつじ座",
+          "おうし座",
+          "ふたご座",
+          "かに座",
+          "しし座",
+          "おとめ座",
+          "てんびん座",
+          "さそり座",
+          "いて座",
+          "やぎ座",
+          "みずがめ座",
+          "うお座",
+        ];
+
+        const labels = zodiacSigns;
+        const data = zodiacSigns.map(_ => 0);
+        const badData = zodiacSigns.map(_ => 0);
+        zodiacSignsJson.forEach(json => {
+          console.log(json);
+          const i = zodiacSigns.findIndex(zodiacSign => json.value === zodiacSign);
+          console.log(i);
+          data[i]++;
+          const j = zodiacSigns.findIndex(zodiacSign => json.badValue === zodiacSign);
+          badData[j]++;
+        })
+        console.log(data, badData)
+
+        var ctx = document.getElementById("zodiacSignsChart");
+        var myChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels, datasets: [{
+              label: "運勢が良い",
+              backgroundColor: "red",
+              data
+            }, {
+              label: "運勢が悪い", backgroundColor: "blue", data: badData
+            }]
+          },
+          options: {
+            title: {
+              display: true,
+              text: '星座占い'
+            }
+          }
+        });
+      }
+    </script>
+  </body>
+
+</html>
