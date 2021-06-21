@@ -27,6 +27,11 @@ header p {
   font-size: 1.5em;
 }
 
+#period {
+  margin: 1em;
+  text-align: right;
+}
+
 main {
   flex-grow: 1;
   margin: 2em auto;

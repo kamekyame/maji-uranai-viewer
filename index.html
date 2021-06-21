@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>トップ</title>
+    <title>まぁじ占いビューア</title>
     <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP" rel="stylesheet">
     <link rel="stylesheet" href="https://necolas.github.io/normalize.css/latest/normalize.css">
     <link rel="stylesheet" href="common.css">
@@ -18,6 +18,8 @@
     <header>
       <p>まぁじ占いビューア</p>
     </header>
+
+    <div id="period"><span>統計期間：</span><span id="zodiacSignsPeriod"></span></div>
 
     <main>
       <canvas id="zodiacSignsChart"></canvas>
@@ -90,6 +92,15 @@
         const res = await fetch("https://kamekyame.mydns.jp/api/maji-uranai/zodiac-signs.json");
         const zodiacSignsJson = await res.json();
 
+        const startTime = new Date(zodiacSignsJson[0].date);
+        const endTime = new Date(zodiacSignsJson.reverse()[0].date);
+        const startTimeText = startTime.getFullYear() + "/" + (startTime.getMonth() + 1) + "/" + startTime.getDate();
+        const endTimeText = endTime.getFullYear() + "/" + (endTime.getMonth() + 1) + "/" + endTime.getDate();
+
+        const periodSpan = document.querySelector("#zodiacSignsPeriod");
+        periodSpan.textContent = `${startTimeText}~${endTimeText}`;
+
+
         const zodiacSigns = [
           "おひつじ座",
           "おうし座",
@@ -109,14 +120,11 @@
         const data = zodiacSigns.map(_ => 0);
         const badData = zodiacSigns.map(_ => 0);
         zodiacSignsJson.forEach(json => {
-          console.log(json);
           const i = zodiacSigns.findIndex(zodiacSign => json.value === zodiacSign);
-          console.log(i);
           data[i]++;
           const j = zodiacSigns.findIndex(zodiacSign => json.badValue === zodiacSign);
           badData[j]++;
-        })
-        console.log(data, badData)
+        });
 
         var ctx = document.getElementById("zodiacSignsChart");
         var myChart = new Chart(ctx, {
