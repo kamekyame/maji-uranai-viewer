@@ -20,10 +20,13 @@
     </header>
 
     <div id="period"><span>統計期間：</span><span id="zodiacSignsPeriod"></span></div>
+    <button id="zodiacSignsChangeButton">表示切替</button>
 
     <main>
       <canvas id="zodiacSignsChart"></canvas>
+      <canvas id="zodiacSignsChartDiff"></canvas>
       <canvas id="colorsChart"></canvas>
+      <canvas id="colorsChartDiff"></canvas>
     </main>
     <footer>
       <p id="copyright">© 2021 kamekyame</p>
@@ -31,12 +34,26 @@
 
 
     <script type="module">
+      let idDiff = true;
+
       main();
 
       async function main() {
         colorsChart();
-
         zodiacSignsChart();
+
+        changeChart(idDiff);
+        zodiacSignsChangeButton.onclick = () => {
+          idDiff = !idDiff;
+          changeChart(idDiff);
+        }
+      }
+
+      function changeChart(idDiff) {
+        document.querySelector("#zodiacSignsChart").style.display = idDiff ? "none" : "block";
+        document.querySelector("#zodiacSignsChartDiff").style.display = idDiff ? "block" : "none";
+        document.querySelector("#colorsChart").style.display = idDiff ? "none" : "block";
+        document.querySelector("#colorsChartDiff").style.display = idDiff ? "block" : "none";
       }
 
       async function colorsChart() {
@@ -68,30 +85,57 @@
           badData[j]++;
         })
 
-        var ctx = document.getElementById("colorsChart");
-        var myChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels, datasets: [{
-              label: "ラッキーカラー",
-              backgroundColor: "red",
-              data
-            }, {
-              label: "アンラッキーカラー", backgroundColor: "blue", data: badData
-            }]
-          },
-          options: {
-            title: {
-              display: true,
-              text: 'ラッキーカラー・アンラッキーカラー'
+        {
+          var ctx = document.getElementById("colorsChart");
+          var myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels, datasets: [{
+                label: "ラッキーカラー",
+                backgroundColor: "red",
+                data
+              }, {
+                label: "アンラッキーカラー", backgroundColor: "blue", data: badData
+              }]
             },
-            scales: {
-              yAxes: [
-                { ticks: { min: 0 } }
-              ]
+            options: {
+              title: {
+                display: true,
+                text: 'ラッキーカラー・アンラッキーカラー'
+              },
+              scales: {
+                yAxes: [
+                  { ticks: { suggestedMin: 0 } }
+                ]
+              }
             }
-          }
-        });
+          });
+        }
+
+        {
+          var ctx = document.getElementById("colorsChartDiff");
+          var myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels, datasets: [{
+                label: "ラッキー度（ラッキー数ーアンラッキー数）",
+                backgroundColor: "green",
+                data: data.map((_, i) => data[i] - badData[i])
+              }]
+            },
+            options: {
+              title: {
+                display: true,
+                text: 'ラッキーカラー・アンラッキーカラー'
+              },
+              scales: {
+                yAxes: [
+                  { ticks: { suggestedMin: 0, suggestedMax: 0 } }
+                ]
+              }
+            }
+          });
+        }
       }
       async function zodiacSignsChart() {
         const res = await fetch("https://kamekyame.mydns.jp/api/maji-uranai/zodiac-signs.json");
@@ -131,30 +175,56 @@
           badData[j]++;
         });
 
-        var ctx = document.getElementById("zodiacSignsChart");
-        var myChart = new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels, datasets: [{
-              label: "運勢が良い",
-              backgroundColor: "red",
-              data
-            }, {
-              label: "運勢が悪い", backgroundColor: "blue", data: badData
-            }]
-          },
-          options: {
-            title: {
-              display: true,
-              text: '星座占い'
+        {
+          var ctx = document.getElementById("zodiacSignsChart");
+          var myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels, datasets: [{
+                label: "運勢が良い",
+                backgroundColor: "red",
+                data
+              }, {
+                label: "運勢が悪い", backgroundColor: "blue", data: badData
+              }]
             },
-            scales: {
-              yAxes: [
-                { ticks: { min: 0 } }
-              ]
+            options: {
+              title: {
+                display: true,
+                text: '星座占い'
+              },
+              scales: {
+                yAxes: [
+                  { ticks: { suggestedMin: 0 } }
+                ]
+              }
             }
-          }
-        });
+          });
+        }
+        {
+          var ctx = document.getElementById("zodiacSignsChartDiff");
+          var myChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels, datasets: [{
+                label: "運勢度",
+                backgroundColor: "green",
+                data: data.map((_, i) => data[i] - badData[i])
+              }]
+            },
+            options: {
+              title: {
+                display: true,
+                text: '星座占い'
+              },
+              scales: {
+                yAxes: [
+                  { ticks: { suggestedMin: 0, suggestedMax: 0 } }
+                ]
+              }
+            }
+          });
+        }
       }
     </script>
   </body>
